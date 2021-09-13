@@ -1,0 +1,30 @@
+@name shows EGPs
+@inputs EGP:wirelink
+@outputs 
+@persist E2s:table EGPs:table E2Owners:table
+@trigger 
+
+interval(1000)
+
+findByClass("gmod_wire_egp_hud")
+local E2s = findToArray()
+
+
+foreach(K:number,V:entity = E2s){
+    E2s[K, entity] = V
+
+    Index = K
+    
+    EGP:egp3DTracker( Index, vec(0, 0, 0))
+    EGP:egpText( Index + 200, "EGP: "+V:owner():name() , vec2(0,15) )
+    EGP:egpColor( Index + 200, vec( 255, 0, 0))
+    
+    
+    EGP:egpParent( Index + 200, Index)
+    EGP:egpParent(Index, V)
+    EGP:egpParent( Index + 100, Index)
+}    
+
+if(dupefinished()){
+    reset()
+}
