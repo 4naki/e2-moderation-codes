@@ -1,0 +1,43 @@
+@name Protection Controller
+@outputs Fade Fade2
+@persist Fade Fade2
+runOnChat(1)
+LS=owner():lastSaid()
+LS2=owner():lastSaid():explode(" ")
+LS3=lastSpoke()==owner()
+if(first()){
+    hint("!EGPs blocked by default!",3500)
+    Fade=0
+    Fade2=1
+}
+if(chatClk()){
+    if(LS3){
+        if(LS2[1,string]:lower()=="/egpshow"){
+            hideChat(1)
+            hint("!EGPs visible!",3500)
+            Fade=1
+            Fade2=0
+            timer("autoblockin5s",5000)
+        }
+        if(LS2[1,string]:lower()=="/egphide"){
+            stoptimer("autoblockin5s")
+            hideChat(1)
+            hint("!EGPs blocked!",3500)
+            Fade=0
+            Fade2=1
+        }
+    }
+}
+
+if(dupefinished()){
+    hint("/egphide",3500)
+    hint("/egpshow",3500)
+    reset()
+}
+
+if(clk("autoblockin5s")){
+    hint("!EGPs Auto-Blocked!",3500)
+    Fade=0
+    Fade2=1
+}
+
