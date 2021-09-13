@@ -1,0 +1,130 @@
+@name Spectator
+@inputs EGP:wirelink
+@outputs CamOn CamParent:entity CamPos:vector CamAng:angle Players:array
+@persist LS:string LS2:array LS3 FindName:string Target:entity CamOn CamParent:entity CamPos:vector Freecam CamAng:angle ID Players:array
+runOnTick(1)
+runOnChat(1)
+LS=owner():lastSaid()
+LS2=owner():lastSaid():explode(" ")
+LS3=lastSpoke()==owner()
+W=egpScrW(owner())/2
+H=egpScrH(owner())/2
+if(first()){
+    Players=players()
+}
+if(chatClk()){
+    if(LS3){
+        if(LS2[1,string]:lower()=="/spec"){
+            hideChat(1)
+            if(LS2[2,string]:lower()=="player"){
+                if(LS2[3,string]){
+                    FindName=LS2[3,string]
+                    Target=findPlayerByName(FindName)
+                    timer("spec",100)
+                }
+            }
+            if(LS2[2,string]:lower()=="id"){
+                if(LS2[3,string]){
+                    ID=LS2[3,string]:toNumber()
+                    for(I=1,players():count()){
+                        E=Players[I,entity]
+                        if(ID==I){
+                            Target=E
+                        }
+                    }
+                    timer("spec",100)
+                }
+            }
+            if(LS2[2,string]:lower()=="stop"){
+                hint("Spectating stopped!",3500)
+                CamOn=0
+            }
+            if(LS2[2,string]:lower()=="freecam"){
+                hint("Freed cam angles!",3500)
+                Freecam=1
+            }
+            if(LS2[2,string]:lower()=="lockcam"){
+                hint("Locked cam angles!",3500)
+                Freecam=0
+            }
+        }
+        if(LS2[1,string]:lower()=="/players"){
+            hideChat(1)
+            for(I=1,players():count()){
+                E=Players[I,entity]
+                print(I+" "+E:name())
+            }
+        }
+        if(LS2[1,string]:lower()=="/help"){
+            hideChat(1)
+            print("/help")
+            print("/players")
+            print("/spec")
+            print("---player")
+            print("------(name of the player)")
+            print("---id")
+            print("------(id of the player, /players")
+            print("---freecam")
+            print("---lockcam")
+            print("---stop")
+            
+        }
+    }
+}
+if(clk("spec")){
+    if(Target:isValid()){
+        if(Target==owner()){
+            hint("Target is you, spectating stopped!",3500)
+            CamOn=0
+            CamParent=noentity()
+            CamPos=vec(0,0,0)
+        }else{
+        hint("Spectating ["+Target:name()+"]",3500)
+        CamOn=1
+        CamParent=Target
+        CamPos=vec(0,0,90)
+        }
+    }else{
+        hint("Target not found!",3500)
+        CamOn=0
+        CamParent=noentity()
+        CamPos=vec(0,0,0)
+    }
+}
+if(CamOn){
+    if(Target){
+        if(Freecam){
+            CamAng=owner():eyeAngles()
+        }else{
+            CamAng=Target:eyeAngles()
+        }
+    }
+    if(changed(Target)&Target){
+        EGP:egpText(1,"Spectating: "+Target:name(),vec2(-750+W,0+H))
+    }
+    if(changed(Target:health())&Target:health()){
+        EGP:egpText(2,"Rank: "+Target:team():teamName(),vec2(-750+W,20+H))
+    }
+    if(changed(Target:health())&Target:health()){
+        EGP:egpText(3,"Health: "+Target:health(),vec2(-750+W,40+H))
+    }
+    if(changed(Target:weapon())&Target:weapon()){
+        EGP:egpText(4,"Weapon: "+Target:weapon():type(),vec2(-750+W,60+H))
+    }
+}
+if(changed(CamOn)&!CamOn){
+    EGP:egpText(1,"",vec2(0+W,20+H))
+    EGP:egpText(2,"",vec2(0+W,20+H))
+    EGP:egpText(3,"",vec2(0+W,20+H))
+    EGP:egpText(4,"",vec2(0+W,20+H))
+}
+if(dupefinished()){
+    hint("/help",3500)
+    reset()
+}
+
+#[
+
+goes together with this!
+
+https://github.com/4naki/Coding/blob/main/E2%20Debug%20Tool%20by%20Naki
