@@ -1,0 +1,38 @@
+@name shows E2s And their owners
+@inputs EGP:wirelink
+@outputs 
+@persist E2s:array
+@trigger 
+
+interval(1000)
+
+findByClass(entity():type())
+E2s = findToArray()
+
+foreach(K:number,V:entity = E2s){
+
+    Index = K
+    
+    EGP:egp3DTracker( Index, vec(0, 0, 0))
+    EGP:egpText( Index + 200, K+" "+V:getName()+" : "+round(V:cpuUsage()*1000000), vec2(0,-15) )    
+    EGP:egpText( Index + 100, "Owner: "+V:owner():name() , vec2(0,0) )
+    EGP:egpColor( Index + 200, vec( 0, 255, 0))
+    EGP:egpColor( Index + 100, vec( 0, 255, 0))
+    EGP:egpParent( Index + 200, Index)
+    EGP:egpParent( Index, V)
+    EGP:egpParent( Index + 100, Index)
+    }    
+
+if(changed(players():count())){
+    reset()
+}
+if(changed(E2s:count())){
+    reset()
+}
+
+if(first()){
+    EGP:egpClear()
+}
+if(dupefinished()){
+    reset()
+}
