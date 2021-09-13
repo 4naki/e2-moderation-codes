@@ -1,0 +1,137 @@
+@name E2 Debug Tool
+@outputs LS:array Target:entity Debug TestCount CalculatedTime CalculatedTimeOPS E2s:array Test Test2
+@persist Target:entity Debug TestCount CalculatedTime CalculatedTimeOPS E2s:array Test Test2
+interval(100)
+runOnChat(1)
+findByClass(entity():type())
+E2s = findToArray()
+if(first()){
+    print("E2 Debug Tool")
+    print("Made by Naki")
+    print("Commands: ")
+    print("/e2s : prints e2s [ID,Name,Owner,CPUTIME]")
+    print("/debug ID : starts a short debug of cpu time and ops, does it 10 times and gives you the average values")
+    print("/data ID : gives details of the chip, Name, Owner, CPU Time, OPS")
+    print("/locate ID : teleports you to the chip")
+    
+    TestCount=0
+    Debug=0
+}
+LS=owner():lastSaid():explode(" ")
+if(chatClk()){
+if(lastSpoke()==owner()){
+        if(owner():lastSaid():lower()=="/e2s"){
+            hideChat(1)
+            print("IDs, Names, Owners and CPU Usages listed below!")
+            foreach(I,E:entity= E2s){
+                owner():sendMessage(I+" "+E:getName()+" : "+E:owner():name()+" : "+round(E:cpuUsage()*1000000))
+            }
+        }
+        if(LS[1,string]=="/debug"){
+            print(owner():lastSaid())
+            hideChat(1)
+            if(LS[2,string]){
+            hideChat(1)
+                foreach(I,E:entity= E2s){
+                    if(I==LS[2,string]:toNumber()){
+                        Target=E
+                    }
+                }
+            timer("debugstart",200)
+            }
+        }
+        if(LS[1,string]=="/data"){
+            print(owner():lastSaid())
+            hideChat(1)
+            if(LS[2,string]){
+            hideChat(1)
+                foreach(I,E:entity= E2s){
+                    if(I==LS[2,string]:toNumber()){
+                        Target=E
+                    }
+                }
+            timer("info",200)
+            }
+        }
+        if(LS[1,string]=="/locate"){
+            print(owner():lastSaid())
+            hideChat(1)
+            if(LS[2,string]){
+            hideChat(1)
+                foreach(I,E:entity= E2s){
+                    if(I==LS[2,string]:toNumber()){
+                        Target=E
+                    }
+                }
+            timer("locate",200)
+            }
+        }
+    }
+}
+
+if(clk("debugstart")){
+    if(Target:isValid()){
+        print("Debugging "+Target:getName()+"...")
+        Debug=1
+        timer("test",1000)
+    }else{
+        print("No e2 found!")
+        Debug=0
+    }
+}
+if(clk("locate")){
+    if(Target:isValid()){
+        print("Sent you to "+Target:getName())
+        owner():plySetPos(Target:pos())
+    }else{
+        print("No e2 found!")
+        Debug=0
+    }
+}
+if(clk("info")){
+    if(Target:isValid()){
+        print("Name: "+Target:getName())
+        print("Owner: "+Target:owner():name())
+        print("CPU Time: "+round(Target:cpuUsage()*1000000))
+        print("OPS: "+Target:ops())
+    }else{
+        print("No e2 found!")
+    }
+    Target=noentity()
+}
+if(clk("test")){
+if(Debug==1){
+    TestCount=TestCount+1
+    CalculatedTime=CalculatedTime+round(Target:cpuUsage()*1000000)
+    CalculatedTimeOPS=CalculatedTimeOPS+round(Target:ops())
+    print("CPU Time: "+round(Target:cpuUsage()*1000000))
+    print("OPS: "+round(Target:ops()))
+    if(Target:isValid()){
+        
+    }else{
+        print("Error!")
+        Debug=0
+    }
+    if(TestCount<10){
+    timer("test",1000)
+    }
+    if(TestCount==10){
+    timer("done",1000)
+    Test=CalculatedTime/10
+    Test2=CalculatedTimeOPS/10
+    }
+}
+}
+if(clk("done")){
+    print("Debug done!")
+    print("Average CPU Time: "+round(Test))
+    print("Average OPS: "+round(Test2))
+    
+    TestCount=0
+    Target=noentity()
+    CalculatedTime=0
+    CalculatedTimeOPS=0
+}
+if(dupefinished()){
+    reset()
+}
